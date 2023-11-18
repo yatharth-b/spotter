@@ -9,7 +9,7 @@ from example import vector_1
 load_dotenv()
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
 pinecone.init(api_key=PINECONE_API_KEY, environment="gcp-starter")
-openai.api_key = os.getenv("OPENAI_API_KEY")
+openai.api_key = os.getenv("OPENAI_API_KEY") 
 
 
 def main_image_scraper(chatgpt_main_image_description, id, scraped_main_image_link=None):
