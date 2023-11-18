@@ -110,29 +110,37 @@ def text_to_vector(input):
   # print(response)
   return response.data[0].embedding
 
+desc_1 = "This is a denim jacket with a light blue, faded wash. It features a classic collar and button-up front with metal buttons that have a weathered finish. The jacket has two buttoned flap pockets at the chest and two side pockets as well. The cuffs also have button closures for adjustability. There is yellow stitching throughout the jacket, providing a contrast to the blue denim and adding reinforcement. Inside, there is a lining made from a soft, cream-colored sherpa material, which extends to the collar, giving the jacket additional warmth and a cozy appearance. The hem of the jacket is characterized by a distinct denim pattern, indicating a separate waistband construction, and the back might have seam patterns that suggest a structured fit."
+desc_2 = "The t-shirt is black with a vivid graphic print on the front, displaying colorful artwork related to Georgia Tech, which includes a stylized yellow jacket character. The overall style is reminiscent of a rock band tour shirt, with bold lettering and illustrations emblazoned across the chest area"
+desc_5 = "The pants are a rust-tone or reddish-brown color. They appear to be joggers, given their tapered and slim fit, as well as the visible gathered elastic at the ankles. The material seems soft and likely comfortable, hinting at a casual or athleisure style of clothing."
+desc_3 = "The denim jacket has a classic blue wash with a button-front closure, featuring two chest flap pockets with button closures and two side welt pockets. It has a contrasting cream-colored sherpa lining on the collar and stitching details throughout"
+desc_4 = "The denim jacket is a classic trucker-style garment with a light blue wash and faded details for a worn-in look. It showcases a contrasting sherpa lining at the collar, which adds a plush texture and warmth to the design. The jacket includes features like buttoned chest flap pockets, side welt pockets, buttoned cuffs, and adjustable buttoned waist tabs. The front closure is buttoned, and the jacket contains visible paneling and stitching that are characteristic of traditional denim construction"
 
-# vector_1 = text_to_vector("This is a denim jacket with a light blue, faded wash. It features a classic collar and button-up front with metal buttons that have a weathered finish. The jacket has two buttoned flap pockets at the chest and two side pockets as well. The cuffs also have button closures for adjustability. There is yellow stitching throughout the jacket, providing a contrast to the blue denim and adding reinforcement. Inside, there is a lining made from a soft, cream-colored sherpa material, which extends to the collar, giving the jacket additional warmth and a cozy appearance. The hem of the jacket is characterized by a distinct denim pattern, indicating a separate waistband construction, and the back might have seam patterns that suggest a structured fit.")
-# vector_2 = text_to_vector("The t-shirt is black with a vivid graphic print on the front, displaying colorful artwork related to Georgia Tech, which includes a stylized yellow jacket character. The overall style is reminiscent of a rock band tour shirt, with bold lettering and illustrations emblazoned across the chest area")
-# vector_5 = text_to_vector("The pants are a rust-tone or reddish-brown color. They appear to be joggers, given their tapered and slim fit, as well as the visible gathered elastic at the ankles. The material seems soft and likely comfortable, hinting at a casual or athleisure style of clothing.")
-# # testing("The shoes are a complex design of sneakers with a blend of earthy tones and splashes of color accents, notably black, white, and gray with hints of bright orange. They feature a mix of materials, including what appears to be mesh, suede, and rubber. The design is intricate with panels and different textures and also reveals an exposed foam tongue, which is characteristic of certain styles of performance or lifestyle sneakers. The laces are looped through a set of eyelets in a traditional fastening fashion.", "Pranay Shoes")
-# vector_3 = text_to_vector("The denim jacket has a classic blue wash with a button-front closure, featuring two chest flap pockets with button closures and two side welt pockets. It has a contrasting cream-colored sherpa lining on the collar and stitching details throughout")
-# vector_4 = text_to_vector("The denim jacket is a classic trucker-style garment with a light blue wash and faded details for a worn-in look. It showcases a contrasting sherpa lining at the collar, which adds a plush texture and warmth to the design. The jacket includes features like buttoned chest flap pockets, side welt pockets, buttoned cuffs, and adjustable buttoned waist tabs. The front closure is buttoned, and the jacket contains visible paneling and stitching that are characteristic of traditional denim construction")
-# groups = [[vector_5, vector_2, vector_3], [vector_5, vector_4, vector_2]]
+vector_1 = text_to_vector("This is a denim jacket with a light blue, faded wash. It features a classic collar and button-up front with metal buttons that have a weathered finish. The jacket has two buttoned flap pockets at the chest and two side pockets as well. The cuffs also have button closures for adjustability. There is yellow stitching throughout the jacket, providing a contrast to the blue denim and adding reinforcement. Inside, there is a lining made from a soft, cream-colored sherpa material, which extends to the collar, giving the jacket additional warmth and a cozy appearance. The hem of the jacket is characterized by a distinct denim pattern, indicating a separate waistband construction, and the back might have seam patterns that suggest a structured fit.")
+vector_2 = text_to_vector("The t-shirt is black with a vivid graphic print on the front, displaying colorful artwork related to Georgia Tech, which includes a stylized yellow jacket character. The overall style is reminiscent of a rock band tour shirt, with bold lettering and illustrations emblazoned across the chest area")
+vector_5 = text_to_vector("The pants are a rust-tone or reddish-brown color. They appear to be joggers, given their tapered and slim fit, as well as the visible gathered elastic at the ankles. The material seems soft and likely comfortable, hinting at a casual or athleisure style of clothing.")
+# testing("The shoes are a complex design of sneakers with a blend of earthy tones and splashes of color accents, notably black, white, and gray with hints of bright orange. They feature a mix of materials, including what appears to be mesh, suede, and rubber. The design is intricate with panels and different textures and also reveals an exposed foam tongue, which is characteristic of certain styles of performance or lifestyle sneakers. The laces are looped through a set of eyelets in a traditional fastening fashion.", "Pranay Shoes")
+vector_3 = text_to_vector("The denim jacket has a classic blue wash with a button-front closure, featuring two chest flap pockets with button closures and two side welt pockets. It has a contrasting cream-colored sherpa lining on the collar and stitching details throughout")
+vector_4 = text_to_vector("The denim jacket is a classic trucker-style garment with a light blue wash and faded details for a worn-in look. It showcases a contrasting sherpa lining at the collar, which adds a plush texture and warmth to the design. The jacket includes features like buttoned chest flap pockets, side welt pockets, buttoned cuffs, and adjustable buttoned waist tabs. The front closure is buttoned, and the jacket contains visible paneling and stitching that are characteristic of traditional denim construction")
+groups = [[vector_5, vector_2, vector_3], [vector_5, vector_4, vector_2]]
+descs = [[desc_5, desc_2, desc_3], [desc_5, desc_4, desc_2]]
 
 
-def drop_most_similar_vector(input_vector, vector_list):
-  similarities = [1 - cosine(input_vector, vector) for vector in vector_list]
-  most_similar_index = np.argmax(similarities)
-  most_similar_vector = vector_list[most_similar_index]
-  vector_list.remove(most_similar_vector)
+def get_most_similar_index(input_vector, vector_list):
+    similarities = [1 - cosine(input_vector, vector) for vector in vector_list]
+    most_similar_index = np.argmax(similarities)
+    return most_similar_index
 
-
-def gpt_to_mongo(main_link, main_vector, groups):
-  for group in groups:
-    drop_most_similar_vector(main_vector, group)
-  ## Mongo entries
+def gpt_to_mongo(main_link, main_vector, groups, descriptions, main_desc):
+  for i in range(len(groups)):
+    index = get_most_similar_index(main_vector, groups[i])
+    descriptions.pop(index)
+    groups.pop(index)
+    ## Mongo entries
   vec_list = [element for row in groups for element in row]
+  desc_list = [element for row in descriptions for element in row]
   vec_list.append(main_vector)
+  desc_list.append(main_desc)
   id_list = []
   for i in range(len(vec_list)):
     id_list.append(ObjectId())
@@ -147,7 +155,7 @@ def gpt_to_mongo(main_link, main_vector, groups):
   collection = client.get_database("Spotter").SpotterClothesData
       
   for i in range(len(id_list)):
-    collection.insert_one({"_id": id_list[i], "recommended": [k for k in id_list if k != id_list[i]], "link": ""})
+    collection.insert_one({"_id": id_list[i], "recommended": [k for k in id_list if k != id_list[i]], "link": "", "desc": desc_list[i]})
   
   collection.update_one({
     "_id": id_list[-1]
@@ -189,5 +197,5 @@ for product_link in product_data:
   
   break
 
-
+gpt_to_mongo(main_link="http://example.com", main_vector=vector_1, groups=groups, descriptions=descs, main_desc=desc_1)
 
