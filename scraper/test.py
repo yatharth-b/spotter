@@ -1,7 +1,5 @@
 # import openai
 
-# openai.api_key = "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"
-
 # # client = OpenAI()s
 
 # response = openai.chat.completions.create(
