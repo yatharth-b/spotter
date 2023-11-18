@@ -1,0 +1,27 @@
+.Home {
+  height: 100vh;
+  width: 100vw;
+  background: #F9E6C9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.tagline {
+  font-size: 24px;
+}
+
+.GoogleIcon {
+  width: 35px;
+  height: 35px;
+}
+
+.LoginButton {
+  display: flex;
+  align-items: center;
+  background: #FBEAD2;
+  padding: 10px;
+  border-radius: 8px;
+  margin-top: 10px;
+}
