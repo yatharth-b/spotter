@@ -1,7 +1,10 @@
 import openai
 from dotenv import load_dotenv
 import pinecone
+from pymongo import MongoClient
 import os
+from bson.objectid import ObjectId
+from example import vector_1
 
 load_dotenv()
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
@@ -39,9 +42,14 @@ def recommendation_image_scraper(input_string):
         ("A", rec)
     ])
         
-def query(input_string):
-    vector = text_to_vector(input_string)
+def query(input_string, threshold=5):
+    # vector = text_to_vector(input_string)
+    vector = vector_1
     index = pinecone.Index("spotter")
+    res = [] # this stores links
+    res_id = [] # this stores ids of those links (not storing vector because OOM??)
+
+    ## Following in pants matches
     matches = index.query(
         vector=vector,
         top_k=5,
@@ -50,9 +58,41 @@ def query(input_string):
     ids = []
     for match in matches["matches"]:
         ids.append(match["id"])
-    return ids
 
+    # Now looking to the recommendation of pant ids in mongodb
+    client = MongoClient(os.getenv('MONGO_CONNECT_URI'))
+    collection = client.get_database("Spotter").SpotterClothesData
 
+    for main_item_id in ids:
+        row = collection.find_one({"_id": ObjectId(main_item_id)})
+        recommendations = row.get("recommended")
+        for rec_id in recommendations:
+            # check if link exists
+            link = collection.find_one({"_id": rec_id}).get("link")
+            if link != "":
+                res.append(link)
+                res_id.append(rec_id)
+    
+    res_index = 0
+
+    while len(res_id) < threshold:
+        # Now search database for similar shirts using res shirts
+        vector = ""
+        for map in index.fetch([str(res_id[res_index])])['vectors']:
+            vector = index.fetch([str(res_id[res_index])])['vectors'][map]['values']
+            break
+
+        matches = index.query(vector = vector, top_k = 3, include_values=False)
+
+        for match in matches["matches"]:
+            id = match["id"]
+            
+            link = collection.find_one({"_id": ObjectId(id)}).get("link")
+            if link:
+                res.append(link)
+                res_id.append(id)
+
+    return res
 
 # def testing(input_string, id):
 #     # main_image_scraper(input_string, id)
