@@ -102,6 +102,10 @@ def vectorize_gpt_text(text : str):
   
   return items
 
+def description_split(text : str):
+    items = text.split('\n\n')
+    return items
+
 def text_to_vector(input):
   response = openai.embeddings.create(
       model="text-embedding-ada-002",
@@ -127,9 +131,17 @@ descs = [[desc_5, desc_2, desc_3], [desc_5, desc_4, desc_2]]
 
 
 def get_most_similar_index(input_vector, vector_list):
-    similarities = [1 - cosine(input_vector, vector) for vector in vector_list]
-    most_similar_index = np.argmax(similarities)
-    return most_similar_index
+    ## error comes when vector_list is 
+
+    try:
+      similarities = [1 - cosine(input_vector, vector) for vector in vector_list]
+      most_similar_index = np.argmax(similarities)
+      return most_similar_index
+    except:
+      print(f"length of input vectors: {len(input_vector)}")
+      print(f"length of vector in vector list:")
+      # for i in vector_list:
+      #       print(len(i))
 
 def gpt_to_mongo(main_link, main_vector, groups, descriptions, main_desc):
   for i in range(len(groups)):
@@ -180,22 +192,25 @@ def gpt_calls(product_link, recommendation_links, main_link):
     concurrent.futures.wait(futures)
 
   results = [future.result().choices[0].message.content for future in futures]
-  results = [vectorize_gpt_text(i) for i in results]
-
-  # return gpt_to_mongo("https://example.com", vector_1, groups)
-  # return product_link, results[-1], results[:-1]
-  return gpt_to_mongo(product_link, results[-1], results[:-1])
+  results_descs = [description_split(i) for i in results]
+  results_vectors = [vectorize_gpt_text(i) for i in results]
+  
+  # main_link, main_vector, groups, descriptions, main_desc
+  return gpt_to_mongo(product_link, results_vectors[-1], results_vectors[:-1], results_descs[:-1], results_descs[-1])
 
 with open("scraper/recommendation_links_dictionary.pickle", 'rb') as file:
   product_data = pickle.load(file)
 
+count = 0
 for product_link in product_data:
   if len(product_data[product_link][0]) == 0:
     continue
   print(product_link)
-  # gpt_calls(product_link, product_data[product_link][0], product_data[product_link][1])
-  
-  break
+  count += 1
+  gpt_calls(product_link, product_data[product_link][0], product_data[product_link][1])
+  if count == 3:
+      break
+#   break
 
 def query(input_string, threshold=5):
     vector = text_to_vector(input_string)
@@ -247,6 +262,5 @@ def query(input_string, threshold=5):
                 res_id.append(id)
 
     return res
-
-gpt_to_mongo(main_link="http://example.com", main_vector=vector_1, groups=groups, descriptions=descs, main_desc=desc_1)
+# gpt_to_mongo(main_link="http://example.com", main_vector=vector_1, groups=groups, descriptions=descs, main_desc=desc_1)
 
