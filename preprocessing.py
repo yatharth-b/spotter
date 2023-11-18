@@ -134,8 +134,8 @@ def get_most_similar_index(input_vector, vector_list):
 def gpt_to_mongo(main_link, main_vector, groups, descriptions, main_desc):
   for i in range(len(groups)):
     index = get_most_similar_index(main_vector, groups[i])
-    descriptions.pop(index)
-    groups.pop(index)
+    descriptions[i].pop(index)
+    groups[i].pop(index)
     ## Mongo entries
   vec_list = [element for row in groups for element in row]
   desc_list = [element for row in descriptions for element in row]
