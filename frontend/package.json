@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "cheerio": "^1.0.0-rc.12",
     "firebase": "^10.6.0",
     "next": "14.0.3",
     "react": "^18",
