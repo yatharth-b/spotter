@@ -1,11 +1,13 @@
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { app, auth, db } from "@/firebase/firebase";
+import { app, auth, db, storage } from "@/firebase/firebase";
 import { useEffect } from "react";
 import styles from "@/styles/Dashboard.module.css";
 import Header from "@/components/header/Header";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { useRouter } from "next/router";
 import { useState } from "react";
+import { getStorage, uploadString, ref, getDownloadURL, uploadBytes } from "firebase/storage";
+// import { get } from "express/lib/response";
 
 export default function Home() {
   const router = useRouter();
@@ -34,18 +36,38 @@ export default function Home() {
     const file = event.target.files[0]; // Get the first selected file
     if (file) {
       const reader = new FileReader();
+      const currentDate = new Date();
+      
+      const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
+      const day = currentDate.getDate().toString().padStart(2, '0');
+      const hours = currentDate.getHours().toString().padStart(2, '0');
+      const minutes = currentDate.getMinutes().toString().padStart(2, '0');
+      const seconds = currentDate.getSeconds().toString().padStart(2, '0');
+      const milliseconds = currentDate.getMilliseconds().toString().padStart(3, '0'); // 3 digits for milliseconds
+      const formattedDateTime = `${month}-${day}_${hours}-${minutes}-${seconds}-${milliseconds}`;
 
+      const storageRef = ref(storage, formattedDateTime)
+      
       reader.onloadend = () => {
-        const base64String = reader.result; // Get the base64 representation of the image
-        fetchRecs(base64String)
+        const base64String = reader.result;
+        uploadBytes(storageRef, file).then(() => {
+          fetchRecs(formattedDateTime, base64String)
+        });
       };
 
       reader.readAsDataURL(file);
     }
   };
 
-  function fetchRecs(base64image) {
-    console.log(base64image)
+  const showMeImage = (file_path) => {
+    const pathReference = ref(storage, file_path);
+    getDownloadURL(pathReference)
+  .then((url) => {
+    console.log(url)
+  })
+  }
+
+  function fetchRecs(url, base64image) {
     // fetch("http://127.0.0.1:5000/test/get_description", {
     //   method: "POST",
     //   headers: {
@@ -55,16 +77,16 @@ export default function Home() {
     //     base64_image: base64image.split(",")[1],
     //   }),
     // })
+
     fetch('/test.json').then((res) => {
       res.json().then(async (api_data) => {
         const snap = await getDoc(doc(db, "users", uid))
         const reqs = snap.data().requests;
-        console.log(reqs)
+        // console.log(reqs)
         console.log(api_data.response)
-        const b64 = base64image.split(",")[1];
         reqs.push({
           // time: new Date(),
-          image: b64,
+          image_url: url,
           recs: api_data.response
         })
         
