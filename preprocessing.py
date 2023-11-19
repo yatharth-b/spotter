@@ -101,20 +101,20 @@ def encode_image(image_path):
   with open(image_path, "rb") as image_file:
     return base64.b64encode(image_file.read()).decode('utf-8')
 
-def vectorize_gpt_text(text : str):
+def vectorize_gpt_text(text : str, is_main : bool):
   items = text.split('\n')
   items = [i for i in items if i != ""]
   items = [text_to_vector(i) for i in items]
-  if len(items) == 1:
+  if is_main:
     return items[0]
   
   return items
 
-def description_split(text : str):
+def description_split(text : str, is_main : bool):
     items = text.split('\n')
     items = [i for i in items if i != ""]
 
-    if len(items) == 1:
+    if is_main:
       return items[0]
     
     return items
@@ -133,7 +133,6 @@ def get_most_similar_index(input_vector, vector_list):
     return most_similar_index
 
 def gpt_to_mongo(main_link, main_vector, groups, descriptions, main_desc):
-  print(f"adding data to firebase")
   
   for i in range(len(groups)):
     index = get_most_similar_index(main_vector, groups[i])
@@ -178,7 +177,6 @@ def gpt_to_mongo(main_link, main_vector, groups, descriptions, main_desc):
   
   doc_ref = clothes_collection.document(str(main_doc_ref))
   big_id_set = list(big_id_set)
-  print(f"Total data added: {big_id_set}")
   doc_ref.update({'recommend': big_id_set})
 
   index.upsert(
@@ -207,8 +205,11 @@ def gpt_calls(product_link, recommendation_links, main_link):
   # with open("temp_test.pickle", 'wb') as file:
   #   pickle.dump(results, file)
 
-  results_descs = [description_split(i) for i in results]
-  results_vectors = [vectorize_gpt_text(i) for i in results]
+  results_descs = [description_split(i, False) for i in results[:-1]]
+  results_vectors = [vectorize_gpt_text(i, False) for i in results[:-1]]
+
+  results_descs.append(description_split(results[-1], True))
+  results_vectors.append(vectorize_gpt_text(results[-1], True))
   
   # main_link, main_vector, groups, descriptions, main_desc
   return gpt_to_mongo(product_link, results_vectors[-1], results_vectors[:-1], results_descs[:-1], results_descs[-1])
@@ -217,17 +218,23 @@ def gpt_calls(product_link, recommendation_links, main_link):
 if __name__ == "__main__":
   with open("scraper/recommendation_links_dictionary.pickle", 'rb') as file:
     product_data = pickle.load(file)
-
-  count = 0
+  
+  already_done = 80
+  count = already_done
   for product_link in product_data:
-    if len(product_data[product_link][0]) == 0:
+
+    if already_done > 0:
+      already_done -= 1
       continue
 
     count += 1
+
+    if len(product_data[product_link][0]) == 0:
+      continue
+
+    print(f'going to work on {count}')
     gpt_calls(product_link, product_data[product_link][0], product_data[product_link][1])
-    if count == 3:
-        break
-#   break
+
 
 # gpt_to_mongo(main_link="http://example.com", main_vector=vector_1, groups=groups, descriptions=descs, main_desc=desc_1)
 
