@@ -1,9 +1,10 @@
 import styles from "../styles/Closet.module.css";
 import Header from "@/components/header/Header";
 import { auth, db } from "@/firebase/firebase";
-import { getDoc, onSnapshot, doc } from "firebase/firestore";
+import { getDoc, onSnapshot, doc, Timestamp } from "firebase/firestore";
 import { useState, useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
+// import { Timestamp } from 'firebase/firestore';
 
 export default function Closet() {
   const [requests, setRequests] = useState();
@@ -26,7 +27,8 @@ export default function Closet() {
           doc(db, "users", user.uid),
           { includeMetadataChanges: true },
           (doc) => {
-            console.log(doc.data());
+            console.log(doc.data().requests[0].time);
+            // console.log(doc.)
             setRequests(doc.data().requests);
           }
         );
@@ -35,6 +37,13 @@ export default function Closet() {
       }
     });
   }, []);
+
+
+  var monthAbbreviations = [
+    "Jan", "Feb", "Mar", "Apr",
+    "May", "Jun", "Jul", "Aug",
+    "Sep", "Oct", "Nov", "Dec"
+  ];
 
   
 
@@ -53,7 +62,7 @@ export default function Closet() {
                   ></img>
                   <div className={styles.RequestGradient}></div>
                   <div className={styles.RequestCardContent}>
-                    <div className={styles.RequestCardDate}>{request.time.getDate()}</div>
+                    <div className={styles.RequestCardDate}>{monthAbbreviations[request.time.toDate().getMonth()]} {request.time.toDate().getDate()}</div>
                     <div className={styles.RequestCardNum}>{request.recs.length} Recommendations Available</div>
                   </div>
                 </div>

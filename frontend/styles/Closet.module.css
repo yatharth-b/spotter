@@ -33,6 +33,10 @@
   color: white;
 }
 
+.RequestCardDate {
+  font-size: 28px;
+}
+
 .RequestImage {
   width: 100%;
   height: 100%;

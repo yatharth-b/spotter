@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { db } from "@/firebase/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, Timestamp } from "firebase/firestore";
 import Header from "@/components/header/Header";
 import { ref, getDownloadURL } from "firebase/storage";
 import { storage } from "@/firebase/firebase";
@@ -13,6 +13,7 @@ export default function Page() {
   const { slug } = router.query;
   const [recs, setRecs] = useState();
   const [image, setImage] = useState();
+  const [time, setTime] = useState();
 
   useEffect(() => {
     if (slug) {
@@ -53,9 +54,25 @@ export default function Page() {
 
         setRecs([...temp_recs]);
         setImage(target_req.image_url);
+        setTime(target_req.time);
       });
     }
   }, [router.query]);
+
+  var monthAbbreviations = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
 
   return (
     recs && (
@@ -72,7 +89,10 @@ export default function Page() {
             <img src={image} className={styles.RequestImageImage}></img>
             <div className={styles.RequestGradient}></div>
             <div className={styles.RequestCardContent}>
-              <div className={styles.RequestCardDate}>Nov 18</div>
+              <div className={styles.RequestCardDate}>
+                {monthAbbreviations[time.toDate().getMonth()]}{" "}
+                {time.toDate().getDate()}
+              </div>
               <div className={styles.RequestCardNum}>
                 {" "}
                 {recs.length} Recommendations Available
@@ -93,9 +113,9 @@ export default function Page() {
                       <div className={styles.RecommendationCardDate}>
                         {rec.prod}
                       </div>
-                      {/* <div className={styles.RecommendationCardNum}>
-                      {rec.pro}
-                    </div> */}
+                      <div className={styles.RecommendationCardNum}>
+                        Hollister
+                      </div>
                     </div>
                   </div>
                 </a>
