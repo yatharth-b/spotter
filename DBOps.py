@@ -29,6 +29,6 @@ def create_vector_db_index():
     pinecone.init(api_key=PINECONE_API_KEY, environment="gcp-starter")
     pinecone.create_index("spotter", dimension = 1536, metric = "cosine", pod_type="starter")
 
-del_mongo()
+# del_mongo()
 del_pinecone()
 create_vector_db_index()

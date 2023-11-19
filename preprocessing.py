@@ -12,8 +12,17 @@ import pinecone
 import numpy as np
 from scipy.spatial.distance import cosine
 import concurrent.futures
+from firebase_admin import credentials, firestore
+import firebase_admin
 
 load_dotenv()
+
+cred = credentials.Certificate("spotter-2a1c2-firebase-adminsdk-ns8jf-213c25fac2.json")
+firebase_admin.initialize_app(cred)
+
+db = firestore.client()
+
+collection_ref = db.collection('clothes')
 
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
 pinecone.init(api_key=PINECONE_API_KEY, environment="gcp-starter")
@@ -125,39 +134,56 @@ def get_most_similar_index(input_vector, vector_list):
     return most_similar_index
 
 def gpt_to_mongo(main_link, main_vector, groups, descriptions, main_desc):
+  
   for i in range(len(groups)):
     index = get_most_similar_index(main_vector, groups[i])
     descriptions[i].pop(index)
     groups[i].pop(index)
     ## Mongo entries
-  vec_list = [element for row in groups for element in row]
-  desc_list = [element for row in descriptions for element in row]
-  vec_list.append(main_vector)
-  desc_list.append(main_desc)
-  id_list = []
-  for i in range(len(vec_list)):
-    id_list.append(ObjectId())
 
   index = pinecone.Index("spotter")
-  for i in range(len(vec_list)):
-    index.upsert([
-    (str(id_list[i]), vec_list[i])
-  ])  
 
-  client = MongoClient(os.getenv('MONGO_CONNECT_URI'))
-  collection = client.get_database("Spotter").SpotterClothesData
-      
-  for i in range(len(id_list)):
-    collection.insert_one({"_id": id_list[i], "recommended": [k for k in id_list if k != id_list[i]], "link": "", "desc": desc_list[i]})
+  big_id_set = set()
+
+  _, main_doc_ref = collection_ref.add({'recommend': [], 'link': main_link, "desc": main_desc})
+  main_doc_ref = main_doc_ref.id
+
+  for i in range(len(groups)):
+    vector_group = groups[i] # Now I have multiple vectors in this. Make a row for each of them
+    small_id_list = []
+
+    for k in range(len(vector_group)):
+      example_schema = {"recommend": [], "link": "", "desc": descriptions[i][k]}
+      _, new_doc_ref = collection_ref.add(example_schema)
+      small_id_list.append(new_doc_ref.id) 
+    
+    #Now add recommendatinos
+
+    for k, small_id in enumerate(small_id_list):
+      # add to pinecone as well
+
+      index.upsert(
+         [
+            (str(small_id), vector_group[k])
+         ]
+      )
+
+      doc_ref = collection_ref.document(small_id)
+      final_answer = [i for i in small_id_list]
+      final_answer.remove(small_id)
+      final_answer.append(main_doc_ref)
+      doc_ref.update({'recommend': final_answer})
+    
+    big_id_set.update(small_id_list)
   
-  collection.update_one({
-    "_id": id_list[-1]
-    },
-    {
-      "$set": {
-          "link": main_link
-      }
-    }
+  doc_ref = collection_ref.document(str(main_doc_ref))
+  big_id_set = list(big_id_set)
+  doc_ref.update({'recommend': big_id_set})
+
+  index.upsert(
+    [
+      (str(main_doc_ref), main_vector)
+    ]
   )
 
 '''
