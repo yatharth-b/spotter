@@ -21,8 +21,7 @@ cred = credentials.Certificate("spotter-2a1c2-firebase-adminsdk-ns8jf-213c25fac2
 firebase_admin.initialize_app(cred)
 
 db = firestore.client()
-
-collection_ref = db.collection('clothes')
+clothes_collection = db.collection('clothes')
 
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
 pinecone.init(api_key=PINECONE_API_KEY, environment="gcp-starter")
@@ -134,6 +133,7 @@ def get_most_similar_index(input_vector, vector_list):
     return most_similar_index
 
 def gpt_to_mongo(main_link, main_vector, groups, descriptions, main_desc):
+  print(f"adding data to firebase")
   
   for i in range(len(groups)):
     index = get_most_similar_index(main_vector, groups[i])
@@ -145,7 +145,7 @@ def gpt_to_mongo(main_link, main_vector, groups, descriptions, main_desc):
 
   big_id_set = set()
 
-  _, main_doc_ref = collection_ref.add({'recommend': [], 'link': main_link, "desc": main_desc})
+  _, main_doc_ref = clothes_collection.add({'recommend': [], 'link': main_link, "desc": main_desc})
   main_doc_ref = main_doc_ref.id
 
   for i in range(len(groups)):
@@ -154,7 +154,7 @@ def gpt_to_mongo(main_link, main_vector, groups, descriptions, main_desc):
 
     for k in range(len(vector_group)):
       example_schema = {"recommend": [], "link": "", "desc": descriptions[i][k]}
-      _, new_doc_ref = collection_ref.add(example_schema)
+      _, new_doc_ref = clothes_collection.add(example_schema)
       small_id_list.append(new_doc_ref.id) 
     
     #Now add recommendatinos
@@ -168,7 +168,7 @@ def gpt_to_mongo(main_link, main_vector, groups, descriptions, main_desc):
          ]
       )
 
-      doc_ref = collection_ref.document(small_id)
+      doc_ref = clothes_collection.document(small_id)
       final_answer = [i for i in small_id_list]
       final_answer.remove(small_id)
       final_answer.append(main_doc_ref)
@@ -176,8 +176,9 @@ def gpt_to_mongo(main_link, main_vector, groups, descriptions, main_desc):
     
     big_id_set.update(small_id_list)
   
-  doc_ref = collection_ref.document(str(main_doc_ref))
+  doc_ref = clothes_collection.document(str(main_doc_ref))
   big_id_set = list(big_id_set)
+  print(f"Total data added: {big_id_set}")
   doc_ref.update({'recommend': big_id_set})
 
   index.upsert(
@@ -190,18 +191,18 @@ def gpt_to_mongo(main_link, main_vector, groups, descriptions, main_desc):
 returns main_vector, [[vector_1, vector_2, ...], [vector_3, vector_4, ...]]
 '''
 def gpt_calls(product_link, recommendation_links, main_link):
-  # with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
-  #   # Submit API calls to the executor
-  #   futures = [executor.submit(get_descriptions, url, True) for url in recommendation_links]
-  #   futures.append(executor.submit(get_descriptions, main_link, True))
+  with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+    # Submit API calls to the executor
+    futures = [executor.submit(get_descriptions, url, True) for url in recommendation_links]
+    futures.append(executor.submit(get_descriptions, main_link, True))
 
-  #   # Wait for all API calls to complete
-  #   concurrent.futures.wait(futures)
+    # Wait for all API calls to complete
+    concurrent.futures.wait(futures)
 
-  with open("temp_test.pickle", 'rb') as file:
-     results = pickle.load(file)
+  # with open("temp_test.pickle", 'rb') as file:
+  #    results = pickle.load(file)
   
-  # results = [future.result().choices[0].message.content for future in futures]
+  results = [future.result().choices[0].message.content for future in futures]
 
   # with open("temp_test.pickle", 'wb') as file:
   #   pickle.dump(results, file)
@@ -212,17 +213,20 @@ def gpt_calls(product_link, recommendation_links, main_link):
   # main_link, main_vector, groups, descriptions, main_desc
   return gpt_to_mongo(product_link, results_vectors[-1], results_vectors[:-1], results_descs[:-1], results_descs[-1])
 
-with open("scraper/recommendation_links_dictionary.pickle", 'rb') as file:
-  product_data = pickle.load(file)
 
-count = 0
-for product_link in product_data:
-  if len(product_data[product_link][0]) == 0:
-    continue
-  count += 1
-  gpt_calls(product_link, product_data[product_link][0], product_data[product_link][1])
-  if count == 3:
-      break
+if __name__ == "__main__":
+  with open("scraper/recommendation_links_dictionary.pickle", 'rb') as file:
+    product_data = pickle.load(file)
+
+  count = 0
+  for product_link in product_data:
+    if len(product_data[product_link][0]) == 0:
+      continue
+
+    count += 1
+    gpt_calls(product_link, product_data[product_link][0], product_data[product_link][1])
+    if count == 3:
+        break
 #   break
 
 # gpt_to_mongo(main_link="http://example.com", main_vector=vector_1, groups=groups, descriptions=descs, main_desc=desc_1)

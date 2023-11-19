@@ -3,6 +3,7 @@ import pinecone
 from dotenv import load_dotenv
 # from pymongo import MongoClient
 from bson.objectid import ObjectId
+from preprocessing import clothes_collection
 import os
 
 load_dotenv()
@@ -28,6 +29,11 @@ def query(input_string, threshold=5):
     
     ids = [match["id"] for match in matches["matches"]] 
     print(ids)
+
+    for id in ids:
+        doc_ref = clothes_collection.document(id)
+        print(doc_ref.get().to_dict().get("desc"))
+
     # for id in ids:
     #     row = collection.find_one({"_id": ObjectId(id)}).get('desc')
     #     print(row)
@@ -68,7 +74,7 @@ def query(input_string, threshold=5):
 
     # return res
 
+if __name__ == "__main__":
 # print(get_descriptions("https://img.hollisterco.com/is/image/anf/KIC_330-1504-1117-475_prod1?policy=product-extra-large", compress=True))
-desc = "The clothing item is a pair of men's jogger pants in a solid khaki color. The waistband is elasticated and features a contrasting black drawstring for adjustable fit. There are two slant pockets on either side, and the back appears to be clean without any visible pockets from this angle. The pants have a relaxed fit through the hips and thighs, tapering down to the ankles, where they are finished with elasticated cuffs, giving them a slight ruched effect. The fabric appears to be a soft, lightweight cotton blend, suitable for casual wear. There is a small, rectangular black label stitched on the right-hand side at the waistband, possibly indicating the brand or size. The stitching is neat, with a vertical seam running down the middle of each leg, contributing to the overall structured look of the joggers."
-# print(text_to_vector(desc))
-print(query(desc, threshold=3))
+    desc = "The clothing item is a pair of men's jogger pants in a solid khaki color. The waistband is elasticated and features a contrasting black drawstring for adjustable fit. There are two slant pockets on either side, and the back appears to be clean without any visible pockets from this angle. The pants have a relaxed fit through the hips and thighs, tapering down to the ankles, where they are finished with elasticated cuffs, giving them a slight ruched effect. The fabric appears to be a soft, lightweight cotton blend, suitable for casual wear. There is a small, rectangular black label stitched on the right-hand side at the waistband, possibly indicating the brand or size. The stitching is neat, with a vertical seam running down the middle of each leg, contributing to the overall structured look of the joggers."
+    print(query(desc, threshold=3))
