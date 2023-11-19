@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { db } from "@/firebase/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import Header from "@/components/header/Header";
+import { ref, getDownloadURL } from "firebase/storage";
+import { storage } from "@/firebase/firebase";
 
 import styles from "../../styles/Request.module.css";
 
@@ -18,7 +20,11 @@ export default function Page() {
       getDoc(docRef).then(async (snap) => {
         const data = snap.data();
 
-        const target_req = data.requests[0]; // filter out and find the request using parameteres
+        const target_req = data.requests.filter((req) => {
+          return req.id === parseInt(slug[1], 10);
+        })[0];
+        
+        console.log(target_req)
 
         const temp_recs = [];
 
@@ -35,7 +41,7 @@ export default function Page() {
                 }),
               });
               const metadata = await metadata_.json();
-              console.log(metadata.prod_name)
+
               temp_recs.push({
                 prod: metadata.prod_name,
                 prod_image: metadata.ogImageUrl,
@@ -48,10 +54,18 @@ export default function Page() {
         console.log(temp_recs);
 
         setRecs([...temp_recs]);
-        setImage(target_req.image_url);
+        showMeImage(target_req.image_url).then((url) => {
+          setImage(url);
+        })
       });
     }
   }, [router.query]);
+
+  const showMeImage = async (file_path) => {
+    const pathReference = ref(storage, file_path);
+    const url = await getDownloadURL(pathReference);
+    return url;
+  };
 
   return (
     recs && (
@@ -79,7 +93,9 @@ export default function Page() {
                   ></img>
                   <div className={styles.RequestGradient}></div>
                   <div className={styles.RecommendationCardContent}>
-                    <div className={styles.RecommendationCardDate}>{rec.prod}</div>
+                    <div className={styles.RecommendationCardDate}>
+                      {rec.prod}
+                    </div>
                     {/* <div className={styles.RecommendationCardNum}>
                       {rec.pro}
                     </div> */}
