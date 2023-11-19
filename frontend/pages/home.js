@@ -73,7 +73,7 @@ export default function Home() {
 
   function fetchRecs(url, base64image) {
     let image_id = 0;
-    fetch("https://style-select-still-star-3228-holy-sun-1738-misty-thunder-7478.fly.dev/", {
+    fetch("https://style-select-still-star-3228-holy-sun-1738-misty-thunder-7478.fly.dev/test/get_description", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

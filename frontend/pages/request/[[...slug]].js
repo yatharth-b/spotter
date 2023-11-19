@@ -23,8 +23,8 @@ export default function Page() {
         const target_req = data.requests.filter((req) => {
           return req.id === parseInt(slug[1], 10);
         })[0];
-        
-        console.log(target_req)
+
+        console.log(target_req);
 
         const temp_recs = [];
 
@@ -56,7 +56,7 @@ export default function Page() {
         setRecs([...temp_recs]);
         showMeImage(target_req.image_url).then((url) => {
           setImage(url);
-        })
+        });
       });
     }
   }, [router.query]);
@@ -86,21 +86,23 @@ export default function Page() {
           <div className={styles.Recommendations}>
             {recs.map((rec) => {
               return (
-                <div className={styles.RecommendationCard}>
-                  <img
-                    src={rec.prod_image}
-                    className={styles.RecommendationImage}
-                  ></img>
-                  <div className={styles.RequestGradient}></div>
-                  <div className={styles.RecommendationCardContent}>
-                    <div className={styles.RecommendationCardDate}>
-                      {rec.prod}
-                    </div>
-                    {/* <div className={styles.RecommendationCardNum}>
+                <a href={"https://hollisterco.com" + rec.prod_link}>
+                  <div className={styles.RecommendationCard}>
+                    <img
+                      src={rec.prod_image}
+                      className={styles.RecommendationImage}
+                    ></img>
+                    <div className={styles.RequestGradient}></div>
+                    <div className={styles.RecommendationCardContent}>
+                      <div className={styles.RecommendationCardDate}>
+                        {rec.prod}
+                      </div>
+                      {/* <div className={styles.RecommendationCardNum}>
                       {rec.pro}
                     </div> */}
+                    </div>
                   </div>
-                </div>
+                </a>
               );
             })}
             {/* <div className=""></div> */}
