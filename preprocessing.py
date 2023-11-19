@@ -197,13 +197,7 @@ def gpt_calls(product_link, recommendation_links, main_link):
     # Wait for all API calls to complete
     concurrent.futures.wait(futures)
 
-  # with open("temp_test.pickle", 'rb') as file:
-  #    results = pickle.load(file)
-  
   results = [future.result().choices[0].message.content for future in futures]
-
-  # with open("temp_test.pickle", 'wb') as file:
-  #   pickle.dump(results, file)
 
   results_descs = [description_split(i, False) for i in results[:-1]]
   results_vectors = [vectorize_gpt_text(i, False) for i in results[:-1]]
