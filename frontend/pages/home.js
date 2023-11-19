@@ -1,11 +1,13 @@
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { app, auth, db } from "@/firebase/firebase";
+import { app, auth, db, storage } from "@/firebase/firebase";
 import { useEffect } from "react";
 import styles from "@/styles/Dashboard.module.css";
 import Header from "@/components/header/Header";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { useRouter } from "next/router";
 import { useState } from "react";
+import { getStorage, uploadString, ref, getDownloadURL } from "firebase/storage";
+import { get } from "express/lib/response";
 
 export default function Home() {
   const router = useRouter();
@@ -34,17 +36,22 @@ export default function Home() {
     const file = event.target.files[0]; // Get the first selected file
     if (file) {
       const reader = new FileReader();
-
+      const storageRef = ref(storage);
       reader.onloadend = () => {
         const base64String = reader.result; // Get the base64 representation of the image
-        fetchRecs(base64String)
+        uploadString(storageRef, base64String.split(",")[1], 'base64').then(() => {
+            getDownloadURL(storageRef).then((url) => {
+                // add url refence to firestore
+                fetchRecs(url, base64String);
+            })
+        });
       };
 
       reader.readAsDataURL(file);
     }
   };
 
-  function fetchRecs(base64image) {
+  function fetchRecs(url, base64image) {
     console.log(base64image)
     // fetch("http://127.0.0.1:5000/test/get_description", {
     //   method: "POST",
@@ -61,10 +68,9 @@ export default function Home() {
         const reqs = snap.data().requests;
         console.log(reqs)
         console.log(api_data.response)
-        const b64 = base64image.split(",")[1];
         reqs.push({
           // time: new Date(),
-          image: b64,
+          image_url: url,
           recs: api_data.response
         })
         
