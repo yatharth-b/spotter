@@ -9,7 +9,7 @@
 }
 
 .tagline {
-  font-size: 24px;
+  font-size: 28px;
 }
 
 .GoogleIcon {
@@ -21,7 +21,17 @@
   display: flex;
   align-items: center;
   background: #FBEAD2;
-  padding: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-top: 5px;
+  padding-bottom: 5px;
   border-radius: 8px;
   margin-top: 10px;
+  cursor: pointer;
+  margin-top: 30px;
+  border: 2px solid darkgrey;
+}
+
+.HeroText {
+  width: 70%;
 }

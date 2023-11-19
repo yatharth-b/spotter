@@ -12,6 +12,7 @@ export default function Home() {
 
   return (
     <div className={styles.Home}>
+      <img src="/herotest.png" className={styles.HeroText}></img>
       <div className={styles.tagline}>Your closet called, it needs a makeover.</div>
       <span className={styles.LoginButton} onClick={() => {
         signInWithGoogle().then((result) => {

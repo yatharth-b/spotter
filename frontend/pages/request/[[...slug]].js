@@ -51,27 +51,23 @@ export default function Page() {
           })
         );
 
-        console.log(temp_recs);
-
         setRecs([...temp_recs]);
-        showMeImage(target_req.image_url).then((url) => {
-          setImage(url);
-        });
+        setImage(target_req.image_url);
       });
     }
   }, [router.query]);
-
-  const showMeImage = async (file_path) => {
-    const pathReference = ref(storage, file_path);
-    const url = await getDownloadURL(pathReference);
-    return url;
-  };
 
   return (
     recs && (
       <>
         <div className={styles.Request}>
-          <Header></Header>
+          <span className={styles.SlugHeader}>
+            <a href="/home">
+              <img src="/backar.svg" className={styles.BackArrow}></img>
+            </a>
+            Go Back
+          </span>
+
           <div className={styles.RequestImage}>
             <img src={image} className={styles.RequestImageImage}></img>
             <div className={styles.RequestGradient}></div>

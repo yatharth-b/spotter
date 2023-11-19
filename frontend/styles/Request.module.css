@@ -76,3 +76,20 @@
   padding: 20px;
   align-self: flex-end;
 }
+
+.SlugHeader {
+  display: flex;
+  padding: 20px;
+  align-items: center;
+  font-size: 32px;
+  align-self: flex-start;
+}
+
+.BackArrow {
+  width: 60px;
+  height: 60px;
+}
+
+.SlugHeaderLink {
+  align-self: flex-start;
+}

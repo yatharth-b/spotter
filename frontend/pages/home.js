@@ -62,8 +62,9 @@ export default function Home() {
 
       reader.onloadend = () => {
         const base64String = reader.result;
-        uploadBytes(storageRef, file).then(() => {
-          fetchRecs(formattedDateTime, base64String);
+        uploadBytes(storageRef, file).then(async () => {
+          const url = await getDownloadURL(storageRef)
+          fetchRecs(url, base64String);
         });
       };
 
@@ -71,17 +72,26 @@ export default function Home() {
     }
   };
 
+  const showMeImage = async (file_path) => {
+    const pathReference = ref(storage, file_path);
+    const url = await getDownloadURL(pathReference);
+    return url;
+  };
+
   function fetchRecs(url, base64image) {
     let image_id = 0;
-    fetch("https://style-select-still-star-3228-holy-sun-1738-misty-thunder-7478.fly.dev/test/get_description", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        base64_image: base64image.split(",")[1],
-      }),
-    }).then((res) => {
+    fetch(
+      "https://style-select-still-star-3228-holy-sun-1738-misty-thunder-7478-spring-moon-5852-cold-dream-3155-bold-dew-1661-sparkling-wave-8715-crimson-dream-2379.fly.dev/test/get_description",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          base64_image: base64image.split(",")[1],
+        }),
+      }
+    ).then((res) => {
       res.json().then(async (api_data) => {
         const snap = await getDoc(doc(db, "users", uid));
         const reqs = snap.data().requests;
@@ -112,25 +122,28 @@ export default function Home() {
   return (
     uid && (
       <div className={styles.Home}>
-        <div></div>
+        <Header curr="scan"></Header>
         <div className={styles.HomeContent}>
           {loading ? (
             <div className={styles.Loader}>Loading</div>
           ) : (
-            <div className={styles.AddImage}>
-              <div className={styles.AddContent}>
-                <img src="/add.png"></img>
-                <div className={styles.AddMessage}>
-                  Let's upgrade your closet
-                </div>
-              </div>
+            <>
               <input
                 type="file"
+                id="imageinput"
                 accept="image/*"
                 onChange={handleImageChange}
                 className={styles.ImageInput}
               />
-            </div>
+              <label for="imageinput" className={styles.AddImage}>
+                <div className={styles.AddContent}>
+                  <img src="/add.svg" className={styles.AddButton}></img>
+                  <div className={styles.AddMessage}>
+                    Let's upgrade your closet
+                  </div>
+                </div>
+              </label>
+            </>
           )}
         </div>
       </div>
