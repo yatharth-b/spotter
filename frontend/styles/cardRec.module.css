@@ -1,13 +1,10 @@
 .recommendationCard {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-  width: 60%;
-  height: 40%;
-  margin: 20%;
-  padding: 10%;
-  border-radius: 10%;
-  background-color: #ffff;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  width: 25rem;
+  height: 16rem;
+  border-radius: 12px;
+  margin: 10%;
+  background-image: -moz-radial-gradient(50% 50%, circle, #fff 0%, rgba(255, 255, 255, 0.00) 100%);
+  border-color: #fff;
+  border-width: 10px;
+  box-shadow: 10px 0 10px rgba(012, 234,30, 0.2);
 }

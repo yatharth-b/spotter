@@ -17,9 +17,6 @@ export default function Home() {
             })
             }}><img src='/google.png' className={styles.GoogleIcon}></img> Login</span>
         </div>
-        <div className="card">
-            <RecommendationCard prod_url = "" img_url = "" prod_name="temp"/>
-        </div>
     </>
   )
 }
