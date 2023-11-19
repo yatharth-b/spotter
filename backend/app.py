@@ -16,7 +16,7 @@ load_dotenv()
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
 pinecone.init(api_key=PINECONE_API_KEY, environment="gcp-starter")
 index = pinecone.Index("spotter")
-cred = credentials.Certificate("../spotter-2a1c2-firebase-adminsdk-ns8jf-213c25fac2.json")
+cred = credentials.Certificate("./spotter-2a1c2-firebase-adminsdk-ns8jf-213c25fac2.json")
 firebase_admin.initialize_app(cred)
 
 db = firestore.client()

@@ -1,0 +1,16 @@
+.Header {
+  display: flex;
+  padding: 30px;
+  align-items: center;
+}
+
+.HeaderItem {
+  padding: 15px;
+  font-size: 24px;
+}
+
+.Logo {
+  width: 40px;
+  height: 40px;
+  padding-right: 10px;
+}
