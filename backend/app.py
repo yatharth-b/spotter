@@ -79,36 +79,39 @@ def encode_image(image_path):
 
 @app.route("/test/get_description", methods=["POST"])
 def get_description():
-    data = request.get_json()
-    if not data:
-        return jsonify({'error': 'No data received'})
-    image_base64 = data.get('base64_image')
-    prompt = "Describe every (or the only) clothing item in these image in detail, be sure to pay attention to little things in the clothing items. Do not talk about the relative positioning of the items, meaning talk about each of the items out of context of the image - as if they were a seperate image. ONLY return the descriptions of the items seperate by a new line."
-    # image_base64 = encode_image("../test_pants.png")
+    try:
+      data = request.get_json()
+      if not data:
+          return jsonify({'error': 'No data received'})
+      image_base64 = data.get('base64_image')
+      prompt = "Describe every (or the only) clothing item in these image in detail, be sure to pay attention to little things in the clothing items. Do not talk about the relative positioning of the items, meaning talk about each of the items out of context of the image - as if they were a seperate image. ONLY return the descriptions of the items seperate by a new line."
+      # image_base64 = encode_image("../test_pants.png")
 
-    response = openai.chat.completions.create(
-      model="gpt-4-vision-preview",
-      messages=[
-        {
-          "role": "user",
-          "content": [
-            {"type": "text", "text": prompt },
-            {
-              "type": "image_url",
-                    "image_url": {
-                        "url": f"data:image/jpeg;base64,{image_base64}"
-                    },
-            },
-          ],
-        }
-      ],
-      max_tokens=300,
-    )
+      response = openai.chat.completions.create(
+        model="gpt-4-vision-preview",
+        messages=[
+          {
+            "role": "user",
+            "content": [
+              {"type": "text", "text": prompt },
+              {
+                "type": "image_url",
+                      "image_url": {
+                          "url": f"data:image/jpeg;base64,{image_base64}"
+                      },
+              },
+            ],
+          }
+        ],
+        max_tokens=300,
+      )
 
 
-    # print(response)
-    final_list = query(response.choices[0].message.content)
-    # print(final_list)
+      # print(response)
+      final_list = query(response.choices[0].message.content)
+      # print(final_list)
 
-    return {"response": final_list}
+      return {"response": final_list}
+    except Exception as e:
+       return {"error": e.message}
 
